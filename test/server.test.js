@@ -42,24 +42,48 @@ test('buildAffiliateUrl returns clean URL when tag is missing', () => {
   assert.equal(result, 'https://produto.mercadolivre.com.br/MLB-1');
 });
 
-test('home page renders all sample products', async () => {
+let products = [];
+
+test('catalog has the 30 real MLB products (15 Moda + 15 Beleza)', async () => {
+  products = await loadProducts();
+  assert.equal(products.length, 30);
+  assert.equal(products.filter((p) => p.category === 'Moda').length, 15);
+  assert.equal(products.filter((p) => p.category === 'Beleza').length, 15);
+  assert.equal(new Set(products.map((p) => p.slug)).size, 30);
+  for (const p of products) {
+    assert.match(p.id, /^MLB\d+$/);
+    assert.equal(typeof p.price, 'number');
+    assert.ok(!/matt_|tool=|affiliate/i.test(p.url), `url must be raw: ${p.url}`);
+  }
+});
+
+test('home page renders all products', async () => {
   const res = await fetch(`${baseUrl}/`);
   assert.equal(res.status, 200);
   const html = await res.text();
-  assert.match(html, /Vestido Midi Floral/);
-  assert.match(html, /Kit Skincare Facial Vitamina C/);
+  for (const p of products) assert.ok(html.includes(`href="/go/${p.id}"`) || html.includes(`/produto/${p.slug}`), p.id);
   assert.match(html, /<\/html>/);
 });
 
-test('product page renders title, image, description and affiliate CTA', async () => {
-  const res = await fetch(`${baseUrl}/produto/mlb1001`);
-  assert.equal(res.status, 200);
-  const html = await res.text();
-  assert.match(html, /Vestido Midi Floral Verão/);
-  assert.match(html, /picsum\.photos\/seed\/mlb1001/);
-  assert.match(html, /estampa floral/);
-  assert.match(html, /href="\/go\/MLB1001"/);
-  assert.match(html, /rel="nofollow sponsored noopener"/);
+test('every product page renders title, image and affiliate CTA', async () => {
+  for (const p of products) {
+    const res = await fetch(`${baseUrl}/produto/${p.slug}`);
+    assert.equal(res.status, 200, p.slug);
+    const html = await res.text();
+    assert.ok(html.includes(`picsum.photos/seed/${p.id}`), p.id);
+    assert.ok(html.includes(`href="/go/${p.id}"`), p.id);
+    assert.match(html, /rel="nofollow sponsored noopener"/);
+  }
+});
+
+test('every /go/:id redirects to its listing with the affiliate tag', async () => {
+  for (const p of products) {
+    const res = await fetch(`${baseUrl}/go/${p.id}`, { redirect: 'manual' });
+    assert.equal(res.status, 302, p.id);
+    const url = new URL(res.headers.get('location'));
+    assert.equal(url.origin + url.pathname, new URL(p.url).origin + new URL(p.url).pathname);
+    assert.equal(url.searchParams.get('matt_word'), 'TEST_TAG_123');
+  }
 });
 
 test('unknown product returns 404', async () => {
@@ -69,7 +93,7 @@ test('unknown product returns 404', async () => {
 
 test('GET /go/:id records a click and redirects to the affiliate URL', async () => {
   const before = clickStore.events.length;
-  const res = await fetch(`${baseUrl}/go/MLB2001?src=test`, { redirect: 'manual' });
+  const res = await fetch(`${baseUrl}/go/MLB3806655487?src=test`, { redirect: 'manual' });
   assert.equal(res.status, 302);
   const location = res.headers.get('location');
   const url = new URL(location);
@@ -78,14 +102,14 @@ test('GET /go/:id records a click and redirects to the affiliate URL', async () 
 
   assert.equal(clickStore.events.length, before + 1);
   const event = clickStore.events.at(-1);
-  assert.equal(event.productId, 'MLB2001');
+  assert.equal(event.productId, 'MLB3806655487');
   assert.equal(event.source, 'test');
   assert.notEqual(event.ipHash, null);
   assert.notEqual(event.uaHash, null);
 });
 
 test('click tracking never stores the raw affiliate tag in the event', async () => {
-  const res = await fetch(`${baseUrl}/go/MLB1001`, { redirect: 'manual' });
+  const res = await fetch(`${baseUrl}/go/MLB19564545`, { redirect: 'manual' });
   assert.equal(res.status, 302);
   const event = clickStore.events.at(-1);
   assert.ok(!JSON.stringify(event).includes('TEST_TAG_123'));
