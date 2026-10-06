@@ -63,3 +63,13 @@ que os links redirecionam **sem** tag de afiliado.
 - Sem comentarios supérfluos; codigo legivel.
 - Nenhum segredo no codigo, comentario ou documento. Use segredo do Paperclip.
 - Testes com `node --test` cobrindo renderizacao e rastreamento.
+
+## Deploy na Vercel
+
+O repositório já está pronto para a Vercel (`vercel.json` + `api/index.js`):
+
+1. Na Vercel: **Add New → Project → Import** este repositório do GitHub (framework: *Other*, sem build).
+2. Em **Settings → Environment Variables** (Production), defina `ML_AFFILIATE_TAG` (o valor está no segredo do Paperclip; nunca commitar) e, opcionalmente, `CLICK_HASH_SALT` e `BASE_URL`.
+3. Deploy. Cada push na branch `main` publica automaticamente.
+
+Na Vercel os cliques são emitidos nos logs de runtime como `[click] {json}` (mesmo formato JSONL do arquivo local), pois o filesystem é efêmero.
