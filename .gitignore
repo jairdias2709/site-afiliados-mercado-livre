@@ -1,0 +1,12 @@
+node_modules/
+.env
+.env.*
+!.env.example
+
+# Dados gerados em runtime (cliques rastreados)
+data/clicks.jsonl
+
+*.log
+npm-debug.log*
+.DS_Store
+coverage/

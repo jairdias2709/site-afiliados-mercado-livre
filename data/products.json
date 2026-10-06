@@ -1,0 +1,58 @@
+{
+  "products": [
+    {
+      "id": "MLB1001",
+      "title": "Vestido Midi Floral Verão",
+      "category": "Moda",
+      "price": 129.9,
+      "image": "https://picsum.photos/seed/mlb1001/600/600",
+      "description": "Vestido midi com estampa floral, tecido leve e fluido, ideal para dias quentes. Modelagem soltinha com alças ajustáveis.",
+      "url": "https://produto.mercadolivre.com.br/MLB-1001-vestido-midi-floral"
+    },
+    {
+      "id": "MLB1002",
+      "title": "Tênis Branco Casual Unissex",
+      "category": "Moda",
+      "price": 189.9,
+      "image": "https://picsum.photos/seed/mlb1002/600/600",
+      "description": "Tênis casual branco com solado emborrachado e acabamento em couro sintético. Combina com looks do dia a dia.",
+      "url": "https://produto.mercadolivre.com.br/MLB-1002-tenis-branco-casual"
+    },
+    {
+      "id": "MLB1003",
+      "title": "Bolsa Transversal Couro Sintético",
+      "category": "Moda",
+      "price": 99.9,
+      "image": "https://picsum.photos/seed/mlb1003/600/600",
+      "description": "Bolsa transversal compacta com alça ajustável e fechamento magnético. Compartimentos internos para celular e carteira.",
+      "url": "https://produto.mercadolivre.com.br/MLB-1003-bolsa-transversal"
+    },
+    {
+      "id": "MLB2001",
+      "title": "Kit Skincare Facial Vitamina C",
+      "category": "Beleza",
+      "price": 149.9,
+      "image": "https://picsum.photos/seed/mlb2001/600/600",
+      "description": "Kit com sabonete, sérum de vitamina C e protetor facial. Rotina completa para uniformizar o tom da pele.",
+      "url": "https://produto.mercadolivre.com.br/MLB-2001-kit-skincare-vitamina-c"
+    },
+    {
+      "id": "MLB2002",
+      "title": "Secador de Cabelo Íon 2000W",
+      "category": "Beleza",
+      "price": 219.9,
+      "image": "https://picsum.photos/seed/mlb2002/600/600",
+      "description": "Secador profissional 2000W com tecnologia íon, 3 temperaturas e 2 velocidades. Inclui difusor e concentrador.",
+      "url": "https://produto.mercadolivre.com.br/MLB-2002-secador-ion-2000w"
+    },
+    {
+      "id": "MLB2003",
+      "title": "Paleta de Sombras Nude 18 Cores",
+      "category": "Beleza",
+      "price": 79.9,
+      "image": "https://picsum.photos/seed/mlb2003/600/600",
+      "description": "Paleta com 18 tons nude, acabamentos matte e cintilante, alta pigmentação e longa duração.",
+      "url": "https://produto.mercadolivre.com.br/MLB-2003-paleta-sombras-nude"
+    }
+  ]
+}
