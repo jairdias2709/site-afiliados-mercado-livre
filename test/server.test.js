@@ -70,7 +70,7 @@ test('every product page renders title, image and affiliate CTA', async () => {
     const res = await fetch(`${baseUrl}/produto/${p.slug}`);
     assert.equal(res.status, 200, p.slug);
     const html = await res.text();
-    assert.ok(html.includes(`picsum.photos/seed/${p.id}`), p.id);
+    assert.ok(html.includes(p.image), p.id);
     assert.ok(html.includes(`href="/go/${p.id}"`), p.id);
     assert.match(html, /rel="nofollow sponsored noopener"/);
   }
