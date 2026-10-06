@@ -55,7 +55,7 @@ que os links redirecionam **sem** tag de afiliado.
 
 ## Documentos
 
-- [`docs/affiliate-program.md`](docs/affiliate-program.md) — o que falta para ativar a conta de afiliado.
+- [`docs/affiliate-program.md`](docs/affiliate-program.md) — credencial ativa, parametro e como o segredo e usado.
 - [`docs/hosting.md`](docs/hosting.md) — decisao de dominio e hospedagem.
 
 ## Convencoes
