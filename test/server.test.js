@@ -76,13 +76,28 @@ test('every product page renders title, image and affiliate CTA', async () => {
   }
 });
 
-test('every /go/:id redirects to its listing with the affiliate tag', async () => {
+test('every /go/:id redirects to its manual affiliate link (meli.la)', async () => {
   for (const p of products) {
+    assert.ok(p.affiliateUrl, `${p.id} has affiliateUrl`);
     const res = await fetch(`${baseUrl}/go/${p.id}`, { redirect: 'manual' });
     assert.equal(res.status, 302, p.id);
+    assert.equal(res.headers.get('location'), p.affiliateUrl, p.id);
+    assert.equal(new URL(p.affiliateUrl).hostname, 'meli.la', p.id);
+  }
+});
+
+test('product without affiliateUrl falls back to the tag URL', async () => {
+  const catalog = createCatalog([{ id: 'MLB1', title: 'Sem link', url: 'https://produto.mercadolivre.com.br/MLB-1' }]);
+  const srv = createApp({ config, catalog, clickStore: createClickStore({ file: null, salt: 's' }) });
+  await new Promise((r) => srv.listen(0, '127.0.0.1', r));
+  try {
+    const res = await fetch(`http://127.0.0.1:${srv.address().port}/go/MLB1`, { redirect: 'manual' });
+    assert.equal(res.status, 302);
     const url = new URL(res.headers.get('location'));
-    assert.equal(url.origin + url.pathname, new URL(p.url).origin + new URL(p.url).pathname);
+    assert.equal(url.hostname, 'produto.mercadolivre.com.br');
     assert.equal(url.searchParams.get('matt_word'), 'TEST_TAG_123');
+  } finally {
+    await new Promise((r) => srv.close(r));
   }
 });
 
@@ -95,10 +110,7 @@ test('GET /go/:id records a click and redirects to the affiliate URL', async () 
   const before = clickStore.events.length;
   const res = await fetch(`${baseUrl}/go/MLB3806655487?src=test`, { redirect: 'manual' });
   assert.equal(res.status, 302);
-  const location = res.headers.get('location');
-  const url = new URL(location);
-  assert.equal(url.hostname, 'produto.mercadolivre.com.br');
-  assert.equal(url.searchParams.get('matt_word'), 'TEST_TAG_123');
+  assert.equal(res.headers.get('location'), 'https://meli.la/13at847');
 
   assert.equal(clickStore.events.length, before + 1);
   const event = clickStore.events.at(-1);
