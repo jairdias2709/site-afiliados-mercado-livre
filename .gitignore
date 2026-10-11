@@ -5,6 +5,10 @@ node_modules/
 
 # Dados gerados em runtime (cliques rastreados)
 data/clicks.jsonl
+data/conversions.jsonl
+
+# Relatorios de marketing gerados
+report/
 
 *.log
 npm-debug.log*

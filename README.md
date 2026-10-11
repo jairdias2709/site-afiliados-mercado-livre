@@ -57,6 +57,17 @@ que os links redirecionam **sem** tag de afiliado.
 
 - [`docs/affiliate-program.md`](docs/affiliate-program.md) — credencial ativa, parametro e como o segredo e usado.
 - [`docs/hosting.md`](docs/hosting.md) — decisao de dominio e hospedagem.
+- [`docs/marketing/measurement.md`](docs/marketing/measurement.md) — canais (`?src=`), dashboard semanal e meta de R$ 6.000/mes.
+
+## Rastreamento por canal
+
+Links de divulgacao usam `?src=<canal>` (ex.: `/produto/<slug>?src=pinterest`).
+O canal e propagado internamente como `?ch=` e gravado no clique (`/go`) junto
+com a posicao da pagina. Dashboard:
+
+```bash
+node scripts/weekly-report.mjs --days 7
+```
 
 ## Convencoes
 

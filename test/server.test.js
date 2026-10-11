@@ -203,3 +203,27 @@ test('category pages render only their products', async () => {
   }
   assert.equal((await fetch(`${baseUrl}/categoria/nada`)).status, 404);
 });
+
+test('marketing channel in ?src= is propagated to internal links and the CTA', async () => {
+  const html = await (await fetch(`${baseUrl}/produto/${products[0].slug}?src=pinterest`)).text();
+  assert.match(html, /href="\/go\/MLB\d+\?src=produto&ch=pinterest"/);
+  assert.match(html, /href="\/categoria\/[a-z]+\?ch=pinterest"/);
+  assert.match(html, /href="\/\?ch=pinterest"/);
+});
+
+test('unknown or malformed ?src= is ignored (clean internal links)', async () => {
+  const html = await (await fetch(`${baseUrl}/produto/${products[0].slug}?src=${encodeURIComponent('"><script>')}`)).text();
+  assert.ok(!html.includes('&ch='), 'no channel should be attached');
+  assert.match(html, /href="\/go\/MLB\d+\?src=produto"/);
+});
+
+test('GET /go records the channel and placement separately', async () => {
+  const before = clickStore.events.length;
+  const res = await fetch(`${baseUrl}/go/MLB3806655487?src=produto&ch=tiktok`, { redirect: 'manual' });
+  assert.equal(res.status, 302);
+  assert.equal(clickStore.events.length, before + 1);
+  const event = clickStore.events.at(-1);
+  assert.equal(event.source, 'produto');
+  assert.equal(event.channel, 'tiktok');
+  assert.equal(event.placement, 'produto');
+});
