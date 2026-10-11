@@ -1,47 +1,85 @@
 import { escapeHtml, formatPrice } from '../lib/html.js';
+import {
+  categoryPath,
+  estimateInstallments,
+  productDescription,
+  productJsonLd,
+  productPath,
+  breadcrumbJsonLd,
+  websiteJsonLd,
+} from '../lib/seo.js';
 import { layout } from './layout.js';
 
-const priceHtml = (p, cls = 'price') =>
-  p.price !== null ? `<p class="${cls}">${escapeHtml(formatPrice(p.price))}</p>` : '';
+const e = escapeHtml;
+const LINK_ATTRS = 'rel="nofollow sponsored noopener" target="_blank"';
+const goHref = (p, src) => `/go/${e(p.id)}?src=${e(src)}`;
 
-function productCard(product, index) {
-  const badge = index < 3 ? '<span class="badge">Mais vendido</span>' : '';
-  return `      <article class="card" data-search="${escapeHtml(`${product.title} ${product.category}`.toLowerCase())}">
-        <a class="card-media" href="/produto/${escapeHtml(product.slug)}">
-          ${badge}
-          <img src="${escapeHtml(product.image)}" alt="${escapeHtml(product.title)}" loading="lazy" />
+const priceHtml = (p, cls = 'price') =>
+  p.price !== null ? `<p class="${cls}">${e(formatPrice(p.price))}</p>` : '';
+
+function installmentsHtml(p) {
+  const inst = estimateInstallments(p.price);
+  return inst
+    ? `<p class="installments">ou ate <strong>${inst.count}x de ${e(formatPrice(inst.amount))}</strong> <span class="muted">(parcelamento estimado; confira no Mercado Livre)</span></p>`
+    : '';
+}
+
+function ratingHtml(p) {
+  if (!p.rating) return '';
+  const reviews = p.reviews ? ` <span class="muted">(${e(p.reviews.toLocaleString('pt-BR'))} avaliacoes)</span>` : '';
+  return `<p class="rating" aria-label="Nota ${e(p.rating.toFixed(1))} de 5"><span class="stars" aria-hidden="true">&#9733;</span> ${e(p.rating.toFixed(1))}${reviews}</p>`;
+}
+
+function trustBadges(p) {
+  const official = p.officialStore ? '<li class="seal seal-official">Loja oficial</li>' : '';
+  return `<ul class="seals">${official}<li class="seal">Compra segura no Mercado Livre</li><li class="seal">Entrega pelo Mercado Livre</li></ul>`;
+}
+
+function productCard(product, index, src = 'card') {
+  const badge = index < 3 && src === 'card' ? '<span class="badge">Mais vendido</span>' : '';
+  const official = product.officialStore ? '<span class="badge badge-official">Loja oficial</span>' : '';
+  return `      <article class="card" data-search="${e(`${product.title} ${product.category}`.toLowerCase())}">
+        <a class="card-media" href="${productPath(product)}">
+          ${badge || official}
+          <img src="${e(product.image)}" alt="${e(product.title)}" loading="lazy" />
         </a>
         <div class="card-body">
-          <p class="eyebrow">${escapeHtml(product.category)}</p>
-          <h3><a href="/produto/${escapeHtml(product.slug)}">${escapeHtml(product.title)}</a></h3>
+          <p class="eyebrow">${e(product.category)}</p>
+          <h3><a href="${productPath(product)}">${e(product.title)}</a></h3>
+          ${ratingHtml(product)}
           ${priceHtml(product)}
-          <a class="btn-outline" href="/go/${escapeHtml(product.id)}" rel="nofollow sponsored noopener" target="_blank">Ver no Mercado Livre <span aria-hidden="true">&#8599;</span></a>
+          <a class="btn-outline" href="${goHref(product, src)}" ${LINK_ATTRS}>Ver no Mercado Livre <span aria-hidden="true">&#8599;</span></a>
         </div>
       </article>`;
 }
 
-export function renderHome({ siteName, tagline, products, categories = [] }) {
+const grid = (items, src) => `      <div class="grid">
+${items.map((p, i) => productCard(p, i, src)).join('\n')}
+      </div>`;
+
+export function renderHome({ siteName, tagline, products, categories = [], baseUrl = '' }) {
   const featured = products[0];
   const feature = featured
     ? `      <aside class="feature">
-        <a class="feature-media" href="/produto/${escapeHtml(featured.slug)}">
+        <a class="feature-media" href="${productPath(featured)}">
           <span class="tag-dark">Oferta do dia</span>
-          <img src="${escapeHtml(featured.image)}" alt="${escapeHtml(featured.title)}" />
+          <img src="${e(featured.image)}" alt="${e(featured.title)}" />
         </a>
         <div class="feature-info">
-          <p class="eyebrow">${escapeHtml(featured.category)}</p>
-          <h2>${escapeHtml(featured.title)}</h2>
+          <p class="eyebrow">${e(featured.category)}</p>
+          <h2>${e(featured.title)}</h2>
+          ${ratingHtml(featured)}
           ${priceHtml(featured, 'price price-lg')}
-          <a class="btn-primary" href="/go/${escapeHtml(featured.id)}" rel="nofollow sponsored noopener" target="_blank">Comprar no Mercado Livre &#8599;</a>
+          <a class="btn-primary" href="${goHref(featured, 'home-feature')}" ${LINK_ATTRS}>Comprar no Mercado Livre &#8599;</a>
         </div>
       </aside>`
     : '';
   const catBlocks = categories
     .map((c) => {
       const items = products.filter((p) => p.category === c).slice(0, 5);
-      return `      <a class="cat" id="cat-${escapeHtml(c.toLowerCase())}" href="#mais-vendidos">
-        <h2>${escapeHtml(c)}</h2><span class="link">Ver tudo &rarr;</span>
-        <p>${items.map((p) => escapeHtml(p.title.split(' ')[0])).join(' &middot; ')}</p>
+      return `      <a class="cat" id="cat-${e(c.toLowerCase())}" href="${categoryPath(c)}">
+        <h2>${e(c)}</h2><span class="link">Ver todos de ${e(c)} &rarr;</span>
+        <p>${items.map((p) => e(p.title.split(' ')[0])).join(' &middot; ')}</p>
       </a>`;
     })
     .join('\n');
@@ -62,34 +100,108 @@ ${catBlocks}
     </section>
     <section id="mais-vendidos">
       <div class="section-head"><h2>Mais vendidos da semana</h2></div>
-      <div class="grid">
-${products.map(productCard).join('\n')}
-      </div>
+${grid(products, 'card')}
     </section>`;
-  return layout({ title: siteName, siteName, description: tagline, body, categories });
+  return layout({
+    title: `${siteName} | Ofertas de moda e beleza no Mercado Livre`,
+    siteName,
+    description: tagline,
+    body,
+    categories,
+    baseUrl,
+    path: '/',
+    image: featured?.image,
+    jsonLd: [websiteJsonLd({ baseUrl, siteName })],
+  });
 }
 
-export function renderProduct({ siteName, product }) {
-  const body = `    <p class="crumbs"><a href="/">Inicio</a> / ${escapeHtml(product.category)}</p>
+export function renderCategory({ siteName, category, copy = {}, products, categories = [], baseUrl = '' }) {
+  const h1 = copy.h1 || `${category} no Mercado Livre`;
+  const description =
+    copy.description || `Os melhores achados de ${category.toLowerCase()} no Mercado Livre, com boas avaliacoes e compra segura.`;
+  const body = `    <nav class="crumbs" aria-label="Breadcrumb"><a href="/">Inicio</a> / <span>${e(category)}</span></nav>
+    <section class="category-head">
+      <h1>${e(h1)}</h1>
+      <p class="lead">${e(copy.intro || description)}</p>
+    </section>
+    <section id="mais-vendidos">
+${grid(products, `categoria-${category.toLowerCase()}`)}
+    </section>`;
+  return layout({
+    title: copy.title ? `${copy.title} | ${siteName}` : `${category} | ${siteName}`,
+    siteName,
+    description,
+    body,
+    categories,
+    baseUrl,
+    path: categoryPath(category),
+    image: products[0]?.image,
+    jsonLd: [
+      breadcrumbJsonLd(baseUrl, [
+        { name: siteName, path: '/' },
+        { name: category, path: categoryPath(category) },
+      ]),
+    ],
+  });
+}
+
+export function renderProduct({ siteName, product, related = [], crossSell = [], categories = [], baseUrl = '' }) {
+  const description = productDescription(product);
+  const seller = product.seller ? `<p class="seller">Vendido por <strong>${e(product.seller)}</strong></p>` : '';
+  const relatedBlock = related.length
+    ? `    <section class="related">
+      <div class="section-head"><h2>Mais de ${e(product.category)}</h2><a class="link" href="${categoryPath(product.category)}">Ver todos &rarr;</a></div>
+${grid(related, 'relacionados')}
+    </section>`
+    : '';
+  const crossBlock = crossSell.length
+    ? `    <section class="related">
+      <div class="section-head"><h2>Quem viu este tambem comprou</h2></div>
+${grid(crossSell, 'cross-sell')}
+    </section>`
+    : '';
+  const body = `    <nav class="crumbs" aria-label="Breadcrumb"><a href="/">Inicio</a> / <a href="${categoryPath(product.category)}">${e(product.category)}</a> / <span>${e(product.title)}</span></nav>
     <article class="product">
       <div class="product-media">
-        <img src="${escapeHtml(product.image)}" alt="${escapeHtml(product.title)}" />
+        <img src="${e(product.image)}" alt="${e(product.title)}" />
       </div>
       <div class="product-info">
-        <p class="eyebrow">${escapeHtml(product.category)}</p>
-        <h1>${escapeHtml(product.title)}</h1>
+        <p class="eyebrow">${e(product.category)}</p>
+        <h1>${e(product.title)}</h1>
+        ${ratingHtml(product)}
         ${priceHtml(product, 'price price-lg')}
-        <p class="description">${escapeHtml(product.description)}</p>
-        <a class="btn-primary cta" id="buy-button" href="/go/${escapeHtml(product.id)}" rel="nofollow sponsored noopener" target="_blank">
+        ${installmentsHtml(product)}
+        ${seller}
+        ${trustBadges(product)}
+        <p class="description">${e(product.description || description)}</p>
+        <p class="urgency">Preco e estoque podem mudar a qualquer momento. Confira a oferta antes que acabe.</p>
+        <a class="btn-primary cta" id="buy-button" href="${goHref(product, 'produto')}" ${LINK_ATTRS}>
           Ver oferta no Mercado Livre &#8599;
         </a>
         <p class="disclosure">Link de afiliado. Voce nao paga nada a mais por isso.</p>
       </div>
-    </article>`;
-  return layout({ title: `${product.title} | ${siteName}`, siteName, description: product.description, body, categories: [product.category] });
+    </article>
+${relatedBlock}
+${crossBlock}
+    <div class="sticky-cta">
+      <div class="sticky-cta-info">${priceHtml(product, 'price')}<span class="muted">Oferta por tempo limitado</span></div>
+      <a class="btn-primary" href="${goHref(product, 'sticky')}" ${LINK_ATTRS}>Comprar no Mercado Livre</a>
+    </div>`;
+  return layout({
+    title: `${product.title} | ${siteName}`,
+    siteName,
+    description,
+    body,
+    categories,
+    baseUrl,
+    path: productPath(product),
+    image: product.image,
+    ogType: 'product',
+    jsonLd: productJsonLd(product, { baseUrl, siteName }),
+  });
 }
 
-export function renderNotFound({ siteName }) {
+export function renderNotFound({ siteName, baseUrl = '' }) {
   const body = `    <section class="hero hero-simple">
       <div class="hero-text">
         <h1>Pagina nao encontrada</h1>
@@ -97,5 +209,5 @@ export function renderNotFound({ siteName }) {
         <p><a class="btn-primary" href="/">Voltar para a pagina inicial</a></p>
       </div>
     </section>`;
-  return layout({ title: `Nao encontrado | ${siteName}`, siteName, body });
+  return layout({ title: `Nao encontrado | ${siteName}`, siteName, body, baseUrl, robots: 'noindex, follow' });
 }

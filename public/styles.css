@@ -64,3 +64,22 @@ img { display:block; width:100%; height:100%; object-fit:cover; }
   .site-header { padding:12px 16px; } .site-header nav { margin-left:0; } .search, .search input { width:100%; }
   .container { padding:0 12px 32px; } .hero-text,.product-info { padding:28px 20px; }
 }
+.muted { color: var(--muted); font-weight: 400; }
+.rating { margin: 4px 0; font-size: 14px; }
+.stars { color: #e8a317; }
+.installments { margin: 4px 0 12px; font-size: 14px; }
+.seller { margin: 6px 0; font-size: 14px; }
+.seals { list-style: none; padding: 0; margin: 10px 0; display: flex; flex-wrap: wrap; gap: 6px; }
+.seal { border: 1px solid var(--line); border-radius: 999px; padding: 4px 10px; font-size: 12px; }
+.seal-official, .badge-official { background: #0b7a3b; color: #fff; border-color: #0b7a3b; }
+.urgency { color: var(--red); font-size: 14px; font-weight: 600; }
+.category-head { margin: 8px 0 24px; }
+.crumbs a { text-decoration: underline; }
+.related { margin-top: 48px; }
+.sticky-cta { display: none; }
+@media (max-width:860px) {
+  .sticky-cta { display: flex; position: fixed; left: 0; right: 0; bottom: 0; z-index: 20; gap: 12px; align-items: center; justify-content: space-between; padding: 10px 16px; background: var(--paper); border-top: 1px solid var(--line); box-shadow: 0 -4px 16px rgba(0,0,0,.08); }
+  .sticky-cta .price { margin: 0; }
+  .sticky-cta-info { display: flex; flex-direction: column; font-size: 12px; }
+  body:has(.sticky-cta) .site-footer { padding-bottom: 96px; }
+}

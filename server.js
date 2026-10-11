@@ -1,6 +1,6 @@
 import { createApp } from './lib/app.js';
 import { loadConfig, affiliateStatus } from './lib/config.js';
-import { loadProducts, createCatalog } from './lib/products.js';
+import { loadProducts, createCatalog, loadCategoryCopy } from './lib/products.js';
 import { createClickStore } from './lib/tracker.js';
 
 const config = loadConfig();
@@ -9,7 +9,7 @@ const products = await loadProducts();
 const catalog = createCatalog(products);
 const clickStore = createClickStore({ file: config.clicksFile, salt: config.clickHashSalt });
 
-const server = createApp({ config, catalog, clickStore });
+const server = createApp({ config, catalog, clickStore, categoryCopy: await loadCategoryCopy() });
 
 server.listen(config.port, config.host, () => {
   const status = affiliateStatus(config);

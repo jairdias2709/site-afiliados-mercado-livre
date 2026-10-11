@@ -1,0 +1,19 @@
+{
+  "_comment": "Copy das paginas de categoria. Fonte: RedatorSEO (MER-12). Campos: name, title, h1, description, intro.",
+  "categories": {
+    "moda": {
+      "name": "Moda",
+      "title": "Moda no Mercado Livre: tenis, calca jeans e bolsas em oferta",
+      "h1": "Achados de moda no Mercado Livre",
+      "description": "Tenis masculino e feminino, calca jeans de cintura alta, mochilas e bolsas selecionados no Mercado Livre, de lojas oficiais e bem avaliadas. Compare precos e compre com seguranca.",
+      "intro": "Selecionamos pecas de moda com boa avaliacao no Mercado Livre: tenis esportivo e casual, calca jeans wide leg, calca mom, bolsas femininas e mochilas. Compare os precos e finalize a compra com a seguranca do Mercado Livre."
+    },
+    "beleza": {
+      "name": "Beleza",
+      "title": "Beleza no Mercado Livre: skincare, creme facial e maquiagem",
+      "h1": "Achados de beleza no Mercado Livre",
+      "description": "Creme facial antirrugas, serum de skincare, protetor solar e kit de pinceis de maquiagem selecionados no Mercado Livre, com marcas de loja oficial. Compare precos e compre com seguranca.",
+      "intro": "Reunimos produtos de beleza bem avaliados no Mercado Livre, como creme facial antissinais, hidratante para pele oleosa, acido glicolico e maquiagem. Compare os precos e compre com a seguranca do Mercado Livre."
+    }
+  }
+}
